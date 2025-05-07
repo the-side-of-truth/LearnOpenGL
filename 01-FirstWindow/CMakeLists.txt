@@ -10,7 +10,7 @@ find_package(glfw3 REQUIRED)
 
 # 引用
 include_directories(
-	"D:\\Lib\\glad\\include"
+	"./include"
 	"${GLFW3_INCLUDE_DIR}"
 )
 
@@ -19,7 +19,7 @@ add_executable (01-FirstWindow
 	"01-FirstWindow.cpp" 
 	"01-FirstWindow.h"
 	"glad.c"
-	)
+)
 
 # TODO: 如有需要，请添加测试并安装目标。
 target_link_libraries( 01-FirstWindow
