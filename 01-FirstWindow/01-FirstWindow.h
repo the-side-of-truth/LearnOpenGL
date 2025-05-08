@@ -8,3 +8,6 @@
 // TODO: 在此处引用程序需要的其他标头。
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
