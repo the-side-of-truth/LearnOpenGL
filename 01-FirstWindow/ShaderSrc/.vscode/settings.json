@@ -1,5 +1,5 @@
 {
-    "glsl-linter.validatorPath": "F:\\Code\\Cpp\\Lib\\3D\\glslang-valid\\bin\\glslangValidator.exe", 
+    "glsl-linter.validatorPath": "D:\\Game\\glslang\\bin\\glslangValidator.exe", 
     "glsl-linter.fileExtensions": {
         ".fs.glsl": "frag",
         ".fs": "frag",
@@ -11,5 +11,6 @@
         ".tcs": "tesc",
         ".gs.glsl": "geom",
         ".gs": "geom",
-    }
+    },
+    "glsllint.glslangValidatorPath": "D:\\Game\\glslang\\bin\\glslangValidator.exe"
 }

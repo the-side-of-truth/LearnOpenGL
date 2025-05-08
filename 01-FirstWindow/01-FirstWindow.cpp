@@ -7,7 +7,9 @@
 using namespace std;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void processInput(GLFWwindow* window);
+void processInput(GLFWwindow* window, const Shader& shader);
+
+float alpha = 0.2f;
 
 int main()
 {
@@ -41,7 +43,7 @@ int main()
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, wall_texture);
     // 为当前绑定的纹理对象设置环绕、过滤方式
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -65,7 +67,7 @@ int main()
     glBindTexture(GL_TEXTURE_2D, face_texture);
     // 为当前绑定的纹理对象设置环绕、过滤方式
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     // 加载并生成纹理
@@ -84,12 +86,13 @@ int main()
 
     unsigned int VBO1; // 创建对象缓存
     glGenBuffers(1, &VBO1);
+    float offset = 0.5;
     float vertices[] = {
      // ---- 位置 ----       ---- 颜色 ----     - 纹理坐标 -
-        0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // 右上
-        0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // 右下
-        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // 左下
-        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // 左上
+        0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   0.5f + offset, 0.5f + offset,   // 右上
+        0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   0.5f + offset, 0.5f - offset,   // 右下
+        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.5f - offset, 0.5f - offset,   // 左下
+        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.5f - offset, 0.5f + offset   // 左上
     };
     int stride = 8;
     uint32_t EBO;
@@ -125,9 +128,11 @@ int main()
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     float timeValue = glfwGetTime();
     float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
+    ourShader.use();
+    ourShader.setUniformFloat("alpha", alpha);
     while (!glfwWindowShouldClose(window)) {
         // 用户输入
-        processInput(window);
+        processInput(window, ourShader);
 
         // 渲染
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -152,8 +157,20 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
-void processInput(GLFWwindow* window) {
+void processInput(GLFWwindow* window, const Shader& shader) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
+    }
+    else if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+        if (alpha < 1.0f) alpha += 0.0001f;
+        shader.use();
+        shader.setUniformFloat("alpha", alpha);
+        std::cout << "alpha:" << alpha << "\n";
+    }
+    else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+        if (alpha > 0.0f) alpha -= 0.0001f;
+        shader.use();
+        shader.setUniformFloat("alpha", alpha);
+        std::cout << "alpha:" << alpha << "\n";
     }
 }
