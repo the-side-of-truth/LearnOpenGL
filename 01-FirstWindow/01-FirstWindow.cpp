@@ -162,11 +162,9 @@ int main()
 
     // 变换矩阵
     glm::mat4 trans;
-    auto f_trans = [](glm::mat4& _Trans, float aspect_ratio, const glm::mat4& model) {
+    auto f_trans = [](glm::mat4& _Trans, float aspect_ratio, const glm::mat4& model, const glm::mat4& view) {
         _Trans = glm::mat4(1.0f);
-        glm::mat4 view;
         // 注意，我们将矩阵向我们要进行移动场景的反方向移动。
-        view = glm::translate(view, glm::vec3(0.0f, 0.0f, -5.0f));
         glm::mat4 projection;
         projection = glm::perspective(glm::radians(45.0f), aspect_ratio, 0.1f, 100.0f);
         _Trans = projection * view * model;
@@ -185,6 +183,8 @@ int main()
       glm::vec3(-1.3f,  1.0f, -1.5f)
     };
     std::cout << "size: " << sizeof(vertices) << "\n";
+    // 第一人称
+    Observer o1(glm::vec3(0, 0, 10));
     // 渲染循环
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glEnable(GL_DEPTH_TEST);
@@ -202,6 +202,7 @@ int main()
         else {
             angle += 1e-2;
         }
+        o1.processKey(window);
 
         // 渲染
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -220,7 +221,7 @@ int main()
             if (temp_angle > 360.f) temp_angle -= 360.f;
             model = glm::rotate(model, glm::radians(temp_angle), glm::vec3(1.0f, 0.3f, 0.5f));
             model = glm::scale(model, glm::vec3(0.4f));
-            f_trans(trans, 1.0f * win_width / win_height, model);
+            f_trans(trans, 1.0f * win_width / win_height, model, o1.getTransformer());
             glUniformMatrix4fv(glGetUniformLocation(ourShader.getID(), "transform"), 1, GL_FALSE, glm::value_ptr(trans));
             glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / (sizeof(vertices[0]) * stride));
         }
