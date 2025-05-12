@@ -21,7 +21,7 @@ add_executable (02-SimpleLightning
 	"main.cpp" 
 	"glad.c"
 	"Shader.cpp"
-	"Observer.cpp")
+	"Observer.cpp" )
 
 # TODO: 如有需要，请添加测试并安装目标。
 target_link_libraries( 02-SimpleLightning

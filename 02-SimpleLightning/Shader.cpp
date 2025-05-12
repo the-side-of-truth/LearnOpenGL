@@ -90,3 +90,13 @@ void Shader::setUniformFloat(const std::string& name, const float value) const {
 	use();
 	glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
 }
+
+void Shader::setUniformVec3(const std::string& name, const glm::vec3& value) const {
+	use();
+	glUniform3fv(glGetUniformLocation(ID, name.c_str()), 1, glm::value_ptr(value));
+}
+
+void Shader::setUniformVec3(const std::string& name, const float v1, const float v2, const float v3) const {
+	use();
+	glUniform3f(glGetUniformLocation(ID, name.c_str()), v1, v2, v3);
+}

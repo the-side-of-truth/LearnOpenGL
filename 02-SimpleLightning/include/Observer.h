@@ -17,7 +17,7 @@ public:
 		R = glm::mat3(1.0f);
 		center = _center;
 		rotateSpeed = 0.01;
-		translateSpeed = 0.0003;
+		translateSpeed = 0.0009;
 	}
 
 	glm::mat4 getTransformer() const{

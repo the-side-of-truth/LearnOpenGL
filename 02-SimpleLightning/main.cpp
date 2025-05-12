@@ -3,6 +3,7 @@
 
 #include "02-SimpleLightning.h"
 #include "shader/Shader.h"
+#include "TextureLoader.h"
 
 using namespace std;
 
@@ -36,49 +37,49 @@ int main()
     unsigned int VBO_Light; // 创建对象缓存
     glGenBuffers(1, &VBO_Light);
     float vertices[] = {
-    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-     0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
+     0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
+     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
 
-    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-     0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-     0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-     0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
+     0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
 
-    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-    -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-    -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
 
-     0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-     0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-     0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-     0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-     0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-     0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+     0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
 
-    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-     0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-     0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-     0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 1.0f,
+     0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
+     0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
 
-    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-     0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-     0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-     0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
+    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f,
+     0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
     };
-    int stride = 6;
+    int stride = 8;
     unsigned int VAO_Light;
     glGenVertexArrays(1, &VAO_Light);
     glBindVertexArray(VAO_Light); // 只记录状态变更，不管数据传输
@@ -104,10 +105,23 @@ int main()
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);// 只会在这里执行一次，不会被VAO记录
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)0); //数据使用说明
     glEnableVertexAttribArray(0);// 启用属性槽
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(3 * sizeof(float))); //数据使用说明
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(3 * sizeof(float))); //数据使用说明
     glEnableVertexAttribArray(1);// 启用属性槽
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(6 * sizeof(float))); //数据使用说明
+    glEnableVertexAttribArray(2);// 启用属性槽
     glBindVertexArray(0);
     glm::mat4 model_obj(1.0f);
+
+    // 读纹理
+    int diffuseTex = 0;
+    char* diffuseTexPath = "../../../Textures/container2.png";
+    loadTexture(diffuseTexPath, diffuseTex);
+    int specularTex = 1;
+    char* specularTexPath = "../../../Textures/lighting_maps_specular_color.png";
+    loadTexture(specularTexPath, specularTex);
+    int emitTex = 2;
+    char* emitTexPath = "../../../Textures/code.jpg";
+    loadTexture(emitTexPath, emitTex);
 
     // 创建着色器
     Shader LightShader("../../../ShaderSrc/simple.vs", "../../../ShaderSrc/lightSource.fs");
@@ -118,7 +132,13 @@ int main()
     glm::vec3 lightColor(1.0f, 1.0f, 1.0f);
     glUniform3fv(glGetUniformLocation(ObjShader.getID(), "lightColor"), 1, glm::value_ptr(lightColor));
     glUniform3fv(glGetUniformLocation(ObjShader.getID(), "lightPos"), 1, glm::value_ptr(lightPos));
-
+    ObjShader.setUniformInt("m.diffuseTex", diffuseTex);
+    ObjShader.setUniformInt("m.specularTex", specularTex);
+    ObjShader.setUniformInt("m.emitTex", emitTex);
+    ObjShader.setUniformFloat("m.shininess", 0.25f * 128);
+    ObjShader.setUniformVec3("light.ambient", 0.2f, 0.2f, 0.2f);
+    ObjShader.setUniformVec3("light.diffuse", 0.5f, 0.5f, 0.5f); // 将光照调暗了一些以搭配场景
+    ObjShader.setUniformVec3("light.specular", 1.0f, 1.0f, 1.0f);
     // 变换矩阵
     glm::mat4 trans;
     auto f_trans = [](glm::mat4& _Trans, float aspect_ratio, const glm::mat4& model, const glm::mat4& view) {
@@ -130,22 +150,28 @@ int main()
     };
 
     // 第一人称
-    Observer o1(glm::vec3(0, 0, 10));
+    Observer o1(glm::vec3(0, 0, 3));
     // 渲染循环
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glEnable(GL_DEPTH_TEST);
     int win_width, win_height;
     float angle = 0;
+    // 光源颜色
     while (!glfwWindowShouldClose(window)) {
         // 用户输入
         o1.processKey(window);
-
+        // 光源颜色
+        //lightColor.x = sin(1.0f * glfwGetTime() * 0.2) + 1;
+        //lightColor.y = sin(1.0f * glfwGetTime() * 0.7) + 1;
+        //lightColor.z = sin(1.0f * glfwGetTime() * 0.5) + 1;
+        //lightColor = lightColor / 2.0f;
         // 渲染
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glfwGetFramebufferSize(window, &win_width, &win_height);
         // 渲染光源
         LightShader.use();
+        LightShader.setUniformVec3("lightSrcColor", lightColor);
         glBindVertexArray(VAO_Light);
         f_trans(trans, 1.0f * win_width / win_height, model_Light, o1.getTransformer());
         glUniformMatrix4fv(glGetUniformLocation(LightShader.getID(), "MVP"), 1, GL_FALSE, glm::value_ptr(trans));
@@ -159,6 +185,12 @@ int main()
         glUniformMatrix4fv(glGetUniformLocation(ObjShader.getID(), "MVP"), 1, GL_FALSE, glm::value_ptr(trans));
         glUniformMatrix3fv(glGetUniformLocation(ObjShader.getID(), "NormalMat"), 1, GL_FALSE, glm::value_ptr(normalMat));
         glUniform3fv(glGetUniformLocation(ObjShader.getID(), "CamCenter"), 1, glm::value_ptr(o1.getCamCenter()));
+        glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f); // 降低影响
+        glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f); // 很低的影响
+        ObjShader.setUniformVec3("light.ambient", ambientColor);
+        ObjShader.setUniformVec3("light.diffuse", diffuseColor);
+        float timeValue = glfwGetTime();
+        ObjShader.setUniformFloat("emitOffset", abs(timeValue - (int)timeValue));
         glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / (sizeof(vertices[0]) * stride));
         glBindVertexArray(0);
         

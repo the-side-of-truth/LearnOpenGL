@@ -3,6 +3,9 @@
 
 #include <iostream>
 #include "glad/glad.h"
+#include "glm/glm.hpp"
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include <string>
 #include <fstream>
@@ -18,6 +21,8 @@ public:
 	void setUniformBool(const std::string& name, const bool value) const;
 	void setUniformInt(const std::string& name, const int value) const;
 	void setUniformFloat(const std::string& name, const float value) const;
+	void setUniformVec3(const std::string& name, const glm::vec3& value) const;
+	void setUniformVec3(const std::string& name, const float v1, const float v2, const float v3) const;
 private:
 	uint32_t ID; // ×ÅÉ«Æ÷ID(¾ä±ú)
 	
