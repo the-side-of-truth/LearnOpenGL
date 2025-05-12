@@ -30,6 +30,10 @@ public:
 		_transformer[3] = glm::vec4(-Rt * center, 1.0f);
 		return _transformer;
 	}
+
+	glm::vec3 getCamCenter() const {
+		return center;
+	}
 	
 	// 处理按键输入
 	void processKey(GLFWwindow* window);
