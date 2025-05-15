@@ -17,7 +17,7 @@ public:
 		R = glm::mat3(1.0f);
 		center = _center;
 		rotateSpeed = 0.01;
-		translateSpeed = 0.0009;
+		translateSpeed = 0.0004;
 	}
 
 	glm::mat4 getTransformer() const{
@@ -33,6 +33,10 @@ public:
 
 	glm::vec3 getCamCenter() const {
 		return center;
+	}
+
+	glm::vec3 getEyeDirection() const {
+		return -glm::vec3(R[2].x, R[2].y, R[2].z);
 	}
 	
 	// 处理按键输入

@@ -91,7 +91,7 @@ int main()
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(3 * sizeof(float))); //数据使用说明
     glEnableVertexAttribArray(1);// 启用属性槽
     glBindVertexArray(0);
-    glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+    glm::vec3 lightPos(2.2f, 2.0f, 3.0f);
     glm::mat4 model_Light = glm::translate(glm::mat4(1.0f), lightPos);
     model_Light = glm::scale(model_Light, glm::vec3(0.2f));
 
@@ -122,6 +122,9 @@ int main()
     int emitTex = 2;
     char* emitTexPath = "../../../Textures/code.jpg";
     loadTexture(emitTexPath, emitTex);
+    int annoTex = 3;
+    char* annoTexPath = "../../../Textures/Anno.png";
+    loadTexture(annoTexPath, annoTex);
 
     // 创建着色器
     Shader LightShader("../../../ShaderSrc/simple.vs", "../../../ShaderSrc/lightSource.fs");
@@ -130,15 +133,34 @@ int main()
     glm::vec3 toyColor(1.0f, 0.5f, 0.31f);
     glUniform3fv(glGetUniformLocation(ObjShader.getID(), "objectColor"), 1, glm::value_ptr(toyColor));
     glm::vec3 lightColor(1.0f, 1.0f, 1.0f);
-    glUniform3fv(glGetUniformLocation(ObjShader.getID(), "lightColor"), 1, glm::value_ptr(lightColor));
-    glUniform3fv(glGetUniformLocation(ObjShader.getID(), "lightPos"), 1, glm::value_ptr(lightPos));
     ObjShader.setUniformInt("m.diffuseTex", diffuseTex);
     ObjShader.setUniformInt("m.specularTex", specularTex);
     ObjShader.setUniformInt("m.emitTex", emitTex);
+    ObjShader.setUniformInt("projectImg", annoTex);
     ObjShader.setUniformFloat("m.shininess", 0.25f * 128);
-    ObjShader.setUniformVec3("light.ambient", 0.2f, 0.2f, 0.2f);
-    ObjShader.setUniformVec3("light.diffuse", 0.5f, 0.5f, 0.5f); // 将光照调暗了一些以搭配场景
-    ObjShader.setUniformVec3("light.specular", 1.0f, 1.0f, 1.0f);
+    // 手电筒光源
+    ObjShader.setUniformVec3("spotLight.ambient", 0.2f, 0.2f, 0.2f);
+    ObjShader.setUniformVec3("spotLight.diffuse", 0.5f, 0.5f, 0.5f); // 将光照调暗了一些以搭配场景
+    ObjShader.setUniformVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
+    ObjShader.setUniformFloat("spotLight.constant", 1.0f);// 衰减系数
+    ObjShader.setUniformFloat("spotLight.linear", 0.09f);
+    ObjShader.setUniformFloat("spotLight.quadratic", 0.032f); 
+    ObjShader.setUniformFloat("spotLight.cutOff_Inner", cosf(glm::radians(10.f))); // 手电筒光切角余弦值
+    ObjShader.setUniformFloat("spotLight.cutOff_outer", cosf(glm::radians(15.f))); // 手电筒光切角余弦值
+    // 定向光源
+    ObjShader.setUniformVec3("dirLight.ambient", 0.2f, 0.2f, 0.2f);
+    ObjShader.setUniformVec3("dirLight.diffuse", 0.5f, 0.5f, 0.5f); // 将光照调暗了一些以搭配场景
+    ObjShader.setUniformVec3("dirLight.specular", 1.0f, 1.0f, 1.0f);
+    ObjShader.setUniformVec3("dirLight.direction", 1.0f, 0.0f, -1.0f);
+    // 点光源
+    ObjShader.setUniformVec3("pointLight.position", lightPos);
+    ObjShader.setUniformVec3("pointLight.ambient", 0.2f, 0.2f, 0.2f);
+    ObjShader.setUniformVec3("pointLight.diffuse", 0.5f, 0.5f, 0.5f); // 将光照调暗了一些以搭配场景
+    ObjShader.setUniformVec3("pointLight.specular", 1.0f, 1.0f, 1.0f);
+    ObjShader.setUniformFloat("pointLight.constant", 1.0f);// 衰减系数
+    ObjShader.setUniformFloat("pointLight.linear", 0.09f);
+    ObjShader.setUniformFloat("pointLight.quadratic", 0.032f);
+
     // 变换矩阵
     glm::mat4 trans;
     auto f_trans = [](glm::mat4& _Trans, float aspect_ratio, const glm::mat4& model, const glm::mat4& view) {
@@ -149,8 +171,8 @@ int main()
         _Trans = projection * view * model;
     };
 
-    // 第一人称
-    Observer o1(glm::vec3(0, 0, 3));
+    // 第一人称观察视角
+    Observer o1(glm::vec3(0, 0, 5));
     // 渲染循环
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glEnable(GL_DEPTH_TEST);
@@ -169,7 +191,7 @@ int main()
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glfwGetFramebufferSize(window, &win_width, &win_height);
-        // 渲染光源
+        // 渲染点光源
         LightShader.use();
         LightShader.setUniformVec3("lightSrcColor", lightColor);
         glBindVertexArray(VAO_Light);
@@ -180,18 +202,29 @@ int main()
         // 渲染物体
         ObjShader.use();
         glBindVertexArray(VAO_Object);
-        f_trans(trans, 1.0f * win_width / win_height, model_obj, o1.getTransformer());
-        glm::mat3 normalMat = glm::transpose(glm::inverse(glm::mat3(model_obj)));
-        glUniformMatrix4fv(glGetUniformLocation(ObjShader.getID(), "MVP"), 1, GL_FALSE, glm::value_ptr(trans));
-        glUniformMatrix3fv(glGetUniformLocation(ObjShader.getID(), "NormalMat"), 1, GL_FALSE, glm::value_ptr(normalMat));
-        glUniform3fv(glGetUniformLocation(ObjShader.getID(), "CamCenter"), 1, glm::value_ptr(o1.getCamCenter()));
-        glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f); // 降低影响
-        glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f); // 很低的影响
-        ObjShader.setUniformVec3("light.ambient", ambientColor);
-        ObjShader.setUniformVec3("light.diffuse", diffuseColor);
-        float timeValue = glfwGetTime();
-        ObjShader.setUniformFloat("emitOffset", abs(timeValue - (int)timeValue));
-        glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / (sizeof(vertices[0]) * stride));
+        // 六个箱子围成一圈
+        for (int i = 0; i < 6; i++) {
+            glm::mat4 model_temp = glm::rotate(glm::mat4(1.0f), glm::radians(i * 60.f), glm::vec3(0, 0, 1));
+            model_temp = glm::translate(model_temp, glm::vec3(0, -2.f, 0));
+            model_temp = glm::scale(model_temp, glm::vec3(1.2f));
+            f_trans(trans, 1.0f * win_width / win_height, model_temp, o1.getTransformer());
+            glm::mat3 normalMat = glm::transpose(glm::inverse(glm::mat3(model_temp)));
+            glUniformMatrix4fv(glGetUniformLocation(ObjShader.getID(), "MVP"), 1, GL_FALSE, glm::value_ptr(trans));
+            glUniformMatrix4fv(glGetUniformLocation(ObjShader.getID(), "model"), 1, GL_FALSE, glm::value_ptr(model_temp));
+            glUniformMatrix4fv(glGetUniformLocation(ObjShader.getID(), "view"), 1, GL_FALSE, glm::value_ptr(o1.getTransformer()));
+            glUniformMatrix3fv(glGetUniformLocation(ObjShader.getID(), "NormalMat"), 1, GL_FALSE, glm::value_ptr(normalMat));
+            glUniform3fv(glGetUniformLocation(ObjShader.getID(), "CamCenter"), 1, glm::value_ptr(o1.getCamCenter()));
+            glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f); // 降低影响
+            glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f); // 很低的影响
+            ObjShader.setUniformVec3("spotLight.ambient", ambientColor);
+            ObjShader.setUniformVec3("spotLight.diffuse", diffuseColor);
+            ObjShader.setUniformVec3("spotLight.position", o1.getCamCenter());
+            ObjShader.setUniformVec3("spotLight.direction", o1.getEyeDirection());
+            float timeValue = glfwGetTime();
+            ObjShader.setUniformFloat("emitOffset", abs(timeValue - (int)timeValue));
+            glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / (sizeof(vertices[0]) * stride));
+        }
+        
         glBindVertexArray(0);
         
 
