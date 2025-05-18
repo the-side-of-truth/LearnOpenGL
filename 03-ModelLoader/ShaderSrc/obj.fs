@@ -85,7 +85,7 @@ void main()
 {
     /*---------Phong Shader---------*/
     // 手电筒光源
-    // vec3 spotColor = spotLihgtRender(spotLight, m, WPos, WNormal, CamCenter);
+    vec3 spotColor = spotLihgtRender(spotLight, m, WPos, WNormal, CamCenter);
 
     // 定向光
     vec3 dirColor = dirLihgtRender(dirLight,  m, WPos, WNormal, CamCenter);
@@ -99,7 +99,7 @@ void main()
     // vec3 emitColor = emit * vec3(texture(m.emitTex, TexPos + vec2(emitOffset, 0.0f))) * vec3(texture(m.specularTex0, TexPos));
 
     // 累加结果
-    vec3 result = dirColor; 
+    vec3 result = dirColor + 0.0 * spotColor; 
     FragColor = vec4(result , 1.0);
 }
 
@@ -145,19 +145,19 @@ vec3 spotLihgtRender(SpotLight _light, Material _m, vec3 _WPos, vec3 _WNormal, v
     );
 
     // 投影图案
-    float fSpotTan = sqrt(1 - _light.cutOff_outer * _light.cutOff_outer) / _light.cutOff_outer;
-    float project = 0.9;
-    vec3 projectColor = vec3(0.0, 0.0, 0.0);
-    vec2 fCoords = -vec2(VPos) / VPos.z; // 相机空间中焦距为1的平面上的坐标
-    vec2 texR = length(fCoords) / fSpotTan * 0.5f * normalize(fCoords) + vec2(0.5f);
-    projectColor = vec3(texture(projectImg, texR));
+    // float fSpotTan = sqrt(1 - _light.cutOff_outer * _light.cutOff_outer) / _light.cutOff_outer;
+    // float project = 0.9;
+    // vec3 projectColor = vec3(0.0, 0.0, 0.0);
+    // vec2 fCoords = -vec2(VPos) / VPos.z; // 相机空间中焦距为1的平面上的坐标
+    // vec2 texR = length(fCoords) / fSpotTan * 0.5f * normalize(fCoords) + vec2(0.5f);
+    // projectColor = vec3(texture(projectImg, texR));
 
-    return spot * attenuation * (phongShader(params) + projectColor);
+    return spot * attenuation * (phongShader(params));
 
 }
 
 vec3 dirLihgtRender(DirLight _light, Material _m, vec3 _WPos, vec3 _WNormal, vec3 _CamCenter){
-    vec3 obj2Lihgt = normalize(_light.direction);
+    vec3 obj2Lihgt = normalize(-_light.direction);
     vec3 obj2Eye = normalize(_CamCenter - _WPos);
     // 读取材质纹理
     vec3 diffuseTexColor = vec3(texture(_m.diffuseTex0, TexPos));

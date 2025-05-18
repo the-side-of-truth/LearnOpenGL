@@ -173,8 +173,6 @@ int main()
 
     // 第一人称观察视角
     Observer o1(glm::vec3(0, 0, 5));
-    // 渲染循环
-    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glEnable(GL_DEPTH_TEST);
     int win_width, win_height;
     float angle = 0;

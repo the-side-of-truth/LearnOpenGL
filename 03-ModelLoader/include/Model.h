@@ -18,15 +18,15 @@ class Model
 {
 public:
 	/*  函数   */
-	Model(char* path)/* : path(path)*/
+	Model(const char* path): path(path)
 	{
-		loadModel(path);
+		loadModel(string(path));
 	}
 	void Draw(Shader& shader);
 	glm::vec3 getCenter(); // 获取模型中心
 
 private:
-	char* path;
+	const char* path;
 	/*  模型数据  */
 	vector<Mesh> meshes;
 	string directory;

@@ -31,17 +31,32 @@ int main()
     glViewport(0, 0, 800, 600); // 成像平面大小
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
+    // 定义一下项目顶层(LearnOpenGL)相对于可执行文件的路径(仅限visual studio)
+    std::string relProjectPath = "../../../../";
+    std::string relSubProjectPath = relProjectPath + "03-ModelLoader/";
     // 创建着色器
-    Shader ObjShader("../../../ShaderSrc/simple.vs", "../../../ShaderSrc/obj.fs");
+    Shader ObjShader(
+        (relSubProjectPath + "ShaderSrc/simple.vs").c_str(), 
+        (relSubProjectPath + "ShaderSrc/obj.fs").c_str()
+    );
     ObjShader.use();
     // 定向光源
     ObjShader.setUniformVec3("dirLight.ambient", 0.2f, 0.2f, 0.2f);
     ObjShader.setUniformVec3("dirLight.diffuse", 0.5f, 0.5f, 0.5f); // 将光照调暗了一些以搭配场景
     ObjShader.setUniformVec3("dirLight.specular", 1.0f, 1.0f, 1.0f);
     ObjShader.setUniformVec3("dirLight.direction", 1.0f, 0.0f, -1.0f);
+    // 手电筒光源
+    ObjShader.setUniformVec3("spotLight.ambient", 0.2f, 0.2f, 0.2f);
+    ObjShader.setUniformVec3("spotLight.diffuse", 0.5f, 0.5f, 0.5f); // 将光照调暗了一些以搭配场景
+    ObjShader.setUniformVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
+    ObjShader.setUniformFloat("spotLight.constant", 1.0f);// 衰减系数
+    ObjShader.setUniformFloat("spotLight.linear", 0.09f);
+    ObjShader.setUniformFloat("spotLight.quadratic", 0.032f);
+    ObjShader.setUniformFloat("spotLight.cutOff_Inner", cosf(glm::radians(10.f))); // 手电筒光切角余弦值
+    ObjShader.setUniformFloat("spotLight.cutOff_outer", cosf(glm::radians(15.f))); // 手电筒光切角余弦值
 
     // 加载模型
-    Model guitar("D:/Data/Meshs/backpack/backpack.obj");
+    Model guitar((relProjectPath + "models/backpack/backpack.obj").c_str());
     glm::mat4 guitarModelMat = glm::translate(glm::mat4(1.0f), -guitar.getCenter());
 
     // 变换矩阵
@@ -76,10 +91,8 @@ int main()
         ObjShader.setUniformMat4("view", o1.getTransformer());
         ObjShader.setUniformMat3("NormalMat", normalMat);
         // 传输片段着色器所需uniform并渲染
+        ObjShader.setUniformVec3("CamCenter", o1.getCamCenter());
         guitar.Draw(ObjShader);
-        
-        
-        
 
         // 窗口渲染方式与事件处理
         glfwSwapBuffers(window);
