@@ -403,3 +403,9 @@ FodyWeavers.xsd
 out/
 build/
 **/.vscode/*
+
+# 避免加载模型文件
+# 忽略 models 文件夹中的所有内容
+models/*
+# 但保留 links.txt 文件
+!models/links.txt
