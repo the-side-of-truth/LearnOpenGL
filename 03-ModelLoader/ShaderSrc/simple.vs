@@ -7,7 +7,6 @@ out vec3 WPos; // 世界坐标系中的位置
 out vec3 VPos; // 相机坐标系中的位置
 out vec3 WNormal;
 out vec2 TexPos;
-out vec2 NDCPos; // NDC坐标(前两维)
 
 uniform mat4 model;
 uniform mat4 view;
@@ -20,10 +19,7 @@ void main(){
     WPos = vec3(model * vec4(aPos, 1.0f));
     VPos = vec3(view * vec4(WPos, 1.0f));
     // 法向量的处理
-    WNormal = normalize(NormalMat * aNormal);
+    WNormal = normalize(NormalMat * normalize(aNormal));
     // 纹理坐标
     TexPos = aTexPos;
-    // 相机空间坐标
-    vec4 cropCoord = MVP * vec4(aPos, 1.0f);
-    NDCPos = vec2(cropCoord.x, cropCoord.y) / (-cropCoord.w);
 }

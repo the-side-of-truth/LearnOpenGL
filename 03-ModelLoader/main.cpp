@@ -45,7 +45,7 @@ int main()
     ObjShader.setUniformVec3("dirLight.diffuse", 0.5f, 0.5f, 0.5f); // 将光照调暗了一些以搭配场景
     ObjShader.setUniformVec3("dirLight.specular", 1.0f, 1.0f, 1.0f);
     ObjShader.setUniformVec3("dirLight.direction", 1.0f, 0.0f, -1.0f);
-    // 手电筒光源
+    // 手电筒光源(常量)
     ObjShader.setUniformVec3("spotLight.ambient", 0.2f, 0.2f, 0.2f);
     ObjShader.setUniformVec3("spotLight.diffuse", 0.5f, 0.5f, 0.5f); // 将光照调暗了一些以搭配场景
     ObjShader.setUniformVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
@@ -71,7 +71,7 @@ int main()
 
     // 第一人称观察视角
     Observer o1(glm::vec3(0, 0, 5));
-    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST);// 启用深度缓冲
     int win_width, win_height;
 
     while (!glfwWindowShouldClose(window)) {
@@ -92,6 +92,9 @@ int main()
         ObjShader.setUniformMat3("NormalMat", normalMat);
         // 传输片段着色器所需uniform并渲染
         ObjShader.setUniformVec3("CamCenter", o1.getCamCenter());
+        // 手电筒光源(常量)
+        ObjShader.setUniformVec3("spotLight.position", o1.getCamCenter());
+        ObjShader.setUniformVec3("spotLight.direction", -glm::vec3(glm::transpose(o1.getTransformer())[2])); // 将光照调暗了一些以搭配场景
         guitar.Draw(ObjShader);
 
         // 窗口渲染方式与事件处理

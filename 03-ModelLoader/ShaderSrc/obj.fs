@@ -36,7 +36,7 @@ struct PointLight {
 struct SpotLight {
     // 手电筒参数
     vec3 position;
-    vec3 direction; // 从光源指向外界
+    vec3 direction; // 手电筒中心射线方向，从光源指向外界
     float cutOff_Inner;   // 视锥体余弦内边界值
     float cutOff_outer;   // 视锥体余弦外边界值
 
@@ -63,7 +63,6 @@ in vec3 WPos;
 in vec3 VPos; // 相机坐标系中的位置
 in vec3 WNormal;
 in vec2 TexPos;
-in vec2 NDCPos;
 
 out vec4 FragColor;
 
@@ -99,7 +98,7 @@ void main()
     // vec3 emitColor = emit * vec3(texture(m.emitTex, TexPos + vec2(emitOffset, 0.0f))) * vec3(texture(m.specularTex0, TexPos));
 
     // 累加结果
-    vec3 result = dirColor + 0.0 * spotColor; 
+    vec3 result = 1.0 * dirColor + 1.0 * spotColor; 
     FragColor = vec4(result , 1.0);
 }
 
