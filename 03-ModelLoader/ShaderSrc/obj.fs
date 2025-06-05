@@ -1,5 +1,8 @@
 #version 330
 struct Material {
+    bool hasDiffuseTex;
+    bool hasSpecularTex;
+    bool hasEmitTex;
     sampler2D diffuseTex0;
     sampler2D specularTex0;
     sampler2D emitTex;
@@ -67,11 +70,24 @@ in vec2 TexPos;
 out vec4 FragColor;
 
 uniform vec3 CamCenter;
+uniform bool hasSpotLight;
 uniform SpotLight spotLight;
+
+uniform bool hasDirLight;
 uniform DirLight dirLight;
+
 uniform PointLight pointLight;
 uniform float emitOffset; // 保证在[0,1]内
 uniform sampler2D projectImg;
+
+uniform int resClass;// 返回的结果类型
+/*
+返回类型：
+0 -> 常规rgb
+1 -> 反相
+2 -> 灰度
+3 -> 核效果
+*/
 
 uniform Material m;
 
@@ -84,10 +100,18 @@ void main()
 {
     /*---------Phong Shader---------*/
     // 手电筒光源
-    vec3 spotColor = spotLihgtRender(spotLight, m, WPos, WNormal, CamCenter);
+    vec3 spotColor = vec3(0.0);
+    if(hasSpotLight){
+        spotColor = spotLihgtRender(spotLight, m, WPos, WNormal, CamCenter);
+        // spotColor = vec3(0.5);
+    }
 
     // 定向光
-    vec3 dirColor = dirLihgtRender(dirLight,  m, WPos, WNormal, CamCenter);
+    vec3 dirColor = vec3(0.0);
+    if(hasDirLight){
+        dirColor = dirLihgtRender(dirLight,  m, WPos, WNormal, CamCenter);
+        // dirColor = vec3(0.5f);
+    }
 
     // 点光源
     // vec3 pointColor = pointLihgtRender(pointLight, m, WPos, WNormal, CamCenter);
@@ -99,7 +123,17 @@ void main()
 
     // 累加结果
     vec3 result = 1.0 * dirColor + 1.0 * spotColor; 
-    FragColor = vec4(result , 1.0);
+
+    // 根据返回类型返回结果
+    if(resClass == 0){// 常规rgb
+        FragColor = vec4(result , 1.0);
+    }else if(resClass == 1){// 反相
+        FragColor = vec4(1.0 - result , 1.0);
+    }else if(resClass == 2){// 灰度
+        float average = 0.2126 * result.r + 0.7152 * result.g + 0.0722 * result.b;
+        FragColor = vec4(average, average, average, 1.0);
+    }
+    
 }
 
 vec3 phongShader(inout PhongParams params){
@@ -130,8 +164,10 @@ vec3 spotLihgtRender(SpotLight _light, Material _m, vec3 _WPos, vec3 _WNormal, v
     float attenuation = 1.0 / (_light.constant + _light.linear * distance2Light + _light.quadratic * distance2Light * distance2Light);
 
     // 读取材质纹理
-    vec3 diffuseTexColor = vec3(texture(_m.diffuseTex0, TexPos));
-    vec3 specularTexColor = vec3(texture(_m.specularTex0, TexPos));
+    vec3 diffuseTexColor = vec3(0.5f);
+    if(m.hasDiffuseTex) diffuseTexColor = vec3(texture(_m.diffuseTex0, TexPos));
+    vec3 specularTexColor = vec3(1.0f);
+    if(m.hasSpecularTex) specularTexColor = vec3(texture(_m.specularTex0, TexPos));
     
     // PhongShader
     PhongParams params = PhongParams(_CamCenter - _WPos, 

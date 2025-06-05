@@ -7,6 +7,9 @@
 #include "GLFW/glfw3.h"
 #include<iostream>
 
-void loadTexture(const char* path, int textureID);
+uint32_t loadTexture(const char* path);
+
+
+
 
 #endif // !TextureLoader_H

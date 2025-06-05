@@ -28,29 +28,31 @@ void Mesh::Draw(Shader& shader) {
 	shader.use();
 	// 激活顶点数据
 	glBindVertexArray(VAO);
-	// 传递uniform数据
-	// 1.纹理(Phong shading)
-	uint32_t diffuseNr = 0, specularNr = 0;
-	for (int i = 0; i < textures.size(); i++) {
-		glActiveTexture(GL_TEXTURE0 + i);
-		Texture& t = textures[i];
-		// 确定传递给哪个采样器
-		std::string samplerName("");
-		if (t.type == DIFFUSE) {
-			samplerName = "diffuseTex" + std::to_string(diffuseNr++);
-		}
-		else if (t.type == SPECULAR) {
-			samplerName = "specularTex" + std::to_string(diffuseNr++);
-			shader.setUniformFloat("shininess", t.Ns);
-		}
-		samplerName = "m." + samplerName;
-		shader.setUniformInt(samplerName, t.id);
-	}
-	// 2. 其他
+
+	// 传递材质
+	std::string matPrefix = "m.";
+	// 漫反射
+	glActiveTexture(GL_TEXTURE0 + TextureSlot::diffuseSlot);
+	glBindTexture(GL_TEXTURE_2D, material.diffuseTex0.id);
+	shader.setUniformBool(matPrefix + "hasDiffuseTex", material.hasDiffuseTex);
+	shader.setUniformInt(matPrefix + "diffuseTex0", (int)diffuseSlot);
+	// 镜面反射
+	glActiveTexture(GL_TEXTURE0 + TextureSlot::specularSlot);
+	glBindTexture(GL_TEXTURE_2D, material.specularTex0.id);
+	shader.setUniformBool(matPrefix + "hasSpecularTex", material.hasSpecularTex);
+	shader.setUniformInt(matPrefix + "specularTex0", TextureSlot::specularSlot);
+	// 其他
+	shader.setUniformBool(matPrefix + "hasEmitTex", material.hasEmitTex);
+	shader.setUniformFloat(matPrefix + "shininess", material.shininess);
+	//  传递其他uniform
 
 	// 渲染
-	glBindVertexArray(VAO);
-	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+	if (useInstance) {
+		glDrawElementsInstanced(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0, instanceNum);
+	}
+	else {
+		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+	}
 	glBindVertexArray(0);
 }
 
